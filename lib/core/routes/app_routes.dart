@@ -4,6 +4,7 @@ import 'package:test_android_flutter/ui/pages/auth/login_screen.dart';
 import 'package:test_android_flutter/ui/pages/auth/register_screen.dart';
 import 'package:test_android_flutter/ui/pages/explore_screen.dart';
 import 'package:test_android_flutter/ui/pages/home_screen.dart';
+import 'package:test_android_flutter/ui/pages/main_screen.dart';
 import 'package:test_android_flutter/ui/pages/post_details_screen.dart';
 import 'package:test_android_flutter/ui/pages/posts_screen.dart';
 import 'package:test_android_flutter/ui/pages/splash_screen.dart';
@@ -15,7 +16,7 @@ class AppRouter {
       GoRoute(
         path: '/',
         name: 'splash',
-        builder: (context, state) => const LoginScreen(),
+        builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(
         path: '/login',
@@ -28,7 +29,9 @@ class AppRouter {
         builder: (context, state) => const RegisterScreen(),
       ),
       StatefulShellRoute.indexedStack(
-        builder: (context, state, navigationShell) => HomeScreen(),
+        builder: (context, state, navigationShell) => MainScreen(
+          navigationShell: navigationShell,
+        ),
         branches: [
           StatefulShellBranch(
             routes: [
