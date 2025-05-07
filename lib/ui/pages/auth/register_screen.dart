@@ -3,6 +3,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:test_android_flutter/core/provider/auth_provider.dart';
 import 'package:test_android_flutter/core/provider/register_provider.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -134,6 +135,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     TextFormField(
+                      controller: emailController,
                       validator: FormBuilderValidators.compose([FormBuilderValidators.required(checkNullOrEmpty: true), FormBuilderValidators.email(checkNullOrEmpty: true)]),
                       maxLines: 1,
                       decoration: InputDecoration(
@@ -282,29 +284,56 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ],
                 ),
                 SizedBox(height: 24),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xff1864D3),
-                      foregroundColor: Colors.white,
-                      fixedSize: Size(
-                        double.maxFinite,
-                        48,
-                      ),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                  onPressed: () {
-                    if (_formRegisterKey.currentState!.validate()) {
-                      print('Register form is valid');
-                      context.goNamed("posts");
-                    }
+                Consumer<AuthProvider>(
+                  builder: (context, authProvider, child) {
+                    return ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xff1864D3),
+                          foregroundColor: Colors.white,
+                          fixedSize: Size(
+                            double.maxFinite,
+                            48,
+                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                      onPressed: () async {
+                        if (_formRegisterKey.currentState!.validate()) {
+                          await context.read<AuthProvider>().signUp(
+                                emailController.text,
+                                passwordController.text,
+                              );
+                          if (authProvider.user != null && context.mounted) {
+                            context.goNamed("posts");
+                          }
+                        }
+                      },
+                      child: authProvider.isLoading
+                          ? SizedBox(
+                              width: 25,
+                              height: 25,
+                              child: const CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text(
+                              'Sign Up',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                    );
                   },
-                  child: Text(
-                    'Sign Up',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                ),
+                if (context.watch<AuthProvider>().error != null) ...[
+                  const SizedBox(height: 24),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Text(
+                      context.watch<AuthProvider>().error!,
+                      style: const TextStyle(color: Colors.red),
                     ),
                   ),
-                ),
+                ],
               ],
             ),
           ),

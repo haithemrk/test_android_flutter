@@ -7,11 +7,33 @@ version: 1.0.0+1
 environment:
   sdk: ^3.6.1
 
+flutter_native_splash:
+
+  image: assets/images/nextdata-logo-blanc.png
+
+
+  color_dark: "#1864D3"
+  image_dark: assets/images/nextdata-logo-blanc.png
+
+  android_12:
+
+  color: "#1864D3"
+
+  # App icon background color.
+  icon_background_color: "#1864D3"
+
+  android: true
+  ios: false
+  web: false
+
+
+
 dependencies:
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+
 
   cupertino_icons: ^1.0.8
   retrofit: ^4.4.2
@@ -28,6 +50,9 @@ dependencies:
   google_fonts: ^6.2.1
   provider: ^6.1.5
   form_builder_validators: ^11.1.2
+  flutter_native_splash: ^2.4.4
+  sqflite: ^2.4.1
+  path: ^1.9.0
 
 dev_dependencies:
   flutter_test:

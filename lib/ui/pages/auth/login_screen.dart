@@ -3,12 +3,35 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:test_android_flutter/core/provider/auth_provider.dart';
 import 'package:test_android_flutter/core/provider/login_provider.dart';
 
-final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
+
+  @override
+  void initState() {
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _formKey.currentState?.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +84,7 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                     TextFormField(
+                      controller: _emailController,
                       validator: FormBuilderValidators.compose([FormBuilderValidators.required(checkNullOrEmpty: true), FormBuilderValidators.email(checkNullOrEmpty: true)]),
                       maxLines: 1,
                       decoration: InputDecoration(
@@ -111,6 +135,7 @@ class LoginScreen extends StatelessWidget {
                       selector: (context, provider) => provider.isObscure,
                       builder: (context, isObscure, child) {
                         return TextFormField(
+                          controller: _passwordController,
                           validator: FormBuilderValidators.required(checkNullOrEmpty: true),
                           maxLines: 1,
                           obscureText: isObscure,
@@ -173,50 +198,86 @@ class LoginScreen extends StatelessWidget {
                 Column(
                   spacing: 12,
                   children: [
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xff1864D3),
-                          foregroundColor: Colors.white,
-                          fixedSize: Size(
-                            double.maxFinite,
-                            48,
-                          ),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          print('login form is valid');
-                          context.goNamed("posts");
-                        }
+                    Consumer<AuthProvider>(
+                      builder: (context, authProvider, child) {
+                        return ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xff1864D3),
+                              foregroundColor: Colors.white,
+                              fixedSize: Size(
+                                double.maxFinite,
+                                48,
+                              ),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              await context.read<AuthProvider>().signIn(
+                                    _emailController.text.trim(),
+                                    _passwordController.text.trim(),
+                                  );
+                              if (authProvider.user != null && context.mounted) {
+                                context.goNamed("posts");
+                              }
+                            }
+                          },
+                          child: authProvider.isLoading
+                              ? SizedBox(
+                                  width: 25,
+                                  height: 25,
+                                  child: const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : Text(
+                                  'Login',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                        );
                       },
-                      child: Text(
-                        'Login',
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
                     ),
-                    OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Color(0xff1864D3),
-                          side: BorderSide(color: Color(0xff1864D3)),
-                          fixedSize: Size(
-                            double.maxFinite,
-                            48,
+                    Consumer<AuthProvider>(
+                      builder: (context, provider, child) {
+                        return OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Color(0xff1864D3),
+                              side: BorderSide(color: Color(0xff1864D3)),
+                              fixedSize: Size(
+                                double.maxFinite,
+                                48,
+                              ),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                          onPressed: () {
+                            context.goNamed("register");
+                            if (provider.error != null) {
+                              context.read<AuthProvider>().clearError();
+                            }
+                          },
+                          child: Text(
+                            'Sign Up',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                      onPressed: () => context.goNamed("register"),
-                      child: Text(
-                        'Sign Up',
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                        );
+                      },
                     )
                   ],
-                )
+                ),
+                if (context.watch<AuthProvider>().error != null) ...[
+                  const SizedBox(height: 24),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Text(
+                      context.watch<AuthProvider>().error!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

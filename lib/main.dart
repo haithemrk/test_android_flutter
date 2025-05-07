@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:provider/provider.dart';
+import 'package:test_android_flutter/core/provider/auth_provider.dart';
 import 'package:test_android_flutter/core/provider/login_provider.dart';
 import 'package:test_android_flutter/core/provider/posts_provider.dart';
 import 'package:test_android_flutter/core/provider/register_provider.dart';
@@ -25,10 +26,11 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SplashProvider()),
         ChangeNotifierProvider(create: (_) => LoginProvider()),
         ChangeNotifierProvider(create: (_) => RegisterProvider()),
-        ChangeNotifierProvider(create: (_) => PostsProvider())
+        ChangeNotifierProvider(create: (_) => PostsProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider())
       ],
       child: MaterialApp.router(
-        title: 'Flutter Demo',
+        title: 'Next Data',
         supportedLocales: FormBuilderLocalizations.supportedLocales,
         localizationsDelegates: [
           FormBuilderLocalizations.delegate,

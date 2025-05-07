@@ -1,92 +1,60 @@
 import 'package:flutter/material.dart';
 import 'package:test_android_flutter/core/models/post.dart';
 import 'package:test_android_flutter/core/models/user.dart';
+import 'package:dio/dio.dart';
+import 'package:test_android_flutter/core/services/retrofit/api_client.dart';
+import 'package:test_android_flutter/core/services/sqlfite/post_database_helper.dart';
+import 'package:test_android_flutter/core/services/sqlfite/user_database_helper.dart';
 
 class PostsProvider with ChangeNotifier {
-  List<Post> posts = [
-    Post(
-      id: 1,
-      userId: 1,
-      body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
-      title: "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-    ),
-    Post(
-      id: 1,
-      userId: 1,
-      body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
-      title: "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-    ),
-    Post(
-      id: 1,
-      userId: 1,
-      body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
-      title: "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-    ),
-    Post(
-      id: 1,
-      userId: 1,
-      body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
-      title: "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-    ),
-    Post(
-      id: 1,
-      userId: 1,
-      body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
-      title: "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-    ),
-    Post(
-      id: 1,
-      userId: 1,
-      body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
-      title: "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-    ),
-  ];
-  List<Post> searchPosts = [
-    Post(
-      id: 1,
-      userId: 1,
-      body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
-      title: "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-    ),
-    Post(
-      id: 1,
-      userId: 1,
-      body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
-      title: "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-    ),
-    Post(
-      id: 1,
-      userId: 1,
-      body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
-      title: "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-    ),
-    Post(
-      id: 1,
-      userId: 1,
-      body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
-      title: "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-    ),
-    Post(
-      id: 1,
-      userId: 1,
-      body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
-      title: "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-    ),
-    Post(
-      id: 1,
-      userId: 1,
-      body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
-      title: "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-    ),
-  ];
-  final List<User> users = [
-    User(id: 1, name: "Leanne Graham"),
-    User(id: 1, name: "Leanne Graham"),
-    User(id: 1, name: "Leanne Graham"),
-    User(id: 1, name: "Leanne Graham"),
-  ];
+  List<Post> posts = [];
+  List<Post> searchPosts = [];
+  List<User> users = [];
+  bool error = false;
+  bool isLoading = false;
 
-  Future<void> getPosts() async {}
+  final ApiClient apiClient = ApiClient(Dio());
+  final PostDatabaseHelper dbHelperPosts = PostDatabaseHelper();
+  final UserDatabaseHelper dbHelperUsers = UserDatabaseHelper();
+
+  Future<void> getPosts() async {
+    final response = await Dio().get('https://jsonplaceholder.typicode.com/posts');
+
+    if (response.statusCode == 200) {
+      posts = (response.data as List).map((json) => Post.fromJson(json)).toList();
+      searchPosts = List<Post>.from(posts);
+      notifyListeners();
+    } else {
+      throw Exception('Failed to load posts');
+    }
+  }
+
+  Future<void> getUsers() async {
+    final response = await Dio().get('https://jsonplaceholder.typicode.com/users');
+
+    if (response.statusCode == 200) {
+      users = (response.data as List).map((json) => User.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load users');
+    }
+  }
+
+  Future<void> initializeData() async {
+    isLoading = true;
+    error = false;
+    notifyListeners();
+
+    try {
+      await getUsers();
+      await getPosts();
+      error = false;
+    } catch (e) {
+      error = true;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 
   void filterPosts({required String filter}) {
     if (filter.isNotEmpty) {
