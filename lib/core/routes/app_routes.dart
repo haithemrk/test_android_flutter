@@ -1,4 +1,6 @@
 import 'package:go_router/go_router.dart';
+import 'package:test_android_flutter/core/models/post.dart';
+import 'package:test_android_flutter/core/models/user.dart';
 import 'package:test_android_flutter/ui/pages/account_screen.dart';
 import 'package:test_android_flutter/ui/pages/auth/login_screen.dart';
 import 'package:test_android_flutter/ui/pages/auth/register_screen.dart';
@@ -47,8 +49,16 @@ class AppRouter {
               GoRoute(path: '/posts', name: 'posts', builder: (context, state) => const PostsScreen(), routes: [
                 GoRoute(
                   path: 'details',
-                  name: 'post_details',
-                  builder: (context, state) => const PostDetailsScreen(),
+                  name: 'details',
+                  builder: (context, state) {
+                    final Map<String, dynamic> data = state.extra! as Map<String, dynamic>;
+
+                    return PostDetailsScreen(
+                      post: data["post"] as Post,
+                      user: data["user"] as User,
+                      key: state.pageKey,
+                    );
+                  },
                 ),
               ]),
             ],

@@ -185,6 +185,7 @@ class LoginScreen extends StatelessWidget {
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
                           print('login form is valid');
+                          context.goNamed("posts");
                         }
                       },
                       child: Text(
