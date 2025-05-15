@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:test_android_flutter/core/models/post.dart';
 
 class PostDatabaseHelper {
   static final PostDatabaseHelper _instance = PostDatabaseHelper._internal();
@@ -43,34 +44,43 @@ class PostDatabaseHelper {
     ''');
   }
 
-  Future<int> insertPost(Map<String, dynamic> post) async {
+  Future<int> insertPost(Post post) async {
     final db = await database;
-    return await db.insert(tablePost, post, conflictAlgorithm: ConflictAlgorithm.replace);
+    return await db.insert(
+      tablePost,
+      post.toJson(), // Convert Post to Map
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
-  Future<Map<String, dynamic>?> getPost(int id) async {
+  Future<Post?> getPost(int id) async {
     final db = await database;
-    List<Map<String, dynamic>> result = await db.query(
+    final List<Map<String, dynamic>> result = await db.query(
       tablePost,
       where: '$columnId = ?',
       whereArgs: [id],
     );
-    if (result.isNotEmpty) return result.first;
+    if (result.isNotEmpty) {
+      return Post.fromJson(result.first); // Convert Map to Post
+    }
     return null;
   }
 
-  Future<List<Map<String, dynamic>>> getAllPosts() async {
+  Future<List<Post>> getAllPosts() async {
     final db = await database;
-    return await db.query(tablePost);
+    final List<Map<String, dynamic>> maps = await db.query(tablePost);
+    return List.generate(maps.length, (i) {
+      return Post.fromJson(maps[i]); // Convert each Map to Post
+    });
   }
 
-  Future<int> updatePost(Map<String, dynamic> post) async {
+  Future<int> updatePost(Post post) async {
     final db = await database;
     return await db.update(
       tablePost,
-      post,
+      post.toJson(), // Convert Post to Map
       where: '$columnId = ?',
-      whereArgs: [post[columnId]],
+      whereArgs: [post.id],
     );
   }
 

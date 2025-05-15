@@ -1,8 +1,6 @@
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:test_android_flutter/core/models/post.dart';
 import 'package:test_android_flutter/core/models/user.dart';
-import 'package:test_android_flutter/core/provider/posts_provider.dart';
 import 'package:test_android_flutter/ui/pages/account_screen.dart';
 import 'package:test_android_flutter/ui/pages/auth/login_screen.dart';
 import 'package:test_android_flutter/ui/pages/auth/register_screen.dart';
@@ -48,30 +46,21 @@ class AppRouter {
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(
-                  path: '/posts',
-                  name: 'posts',
-                  builder: (context, state) => FutureProvider<void>.value(
-                      value: context.read<PostsProvider>().initializeData(),
-                      initialData: null,
-                      builder: (context, child) {
-                        return PostsScreen();
-                      }),
-                  routes: [
-                    GoRoute(
-                      path: 'details',
-                      name: 'details',
-                      builder: (context, state) {
-                        final Map<String, dynamic> data = state.extra! as Map<String, dynamic>;
+              GoRoute(path: '/posts', name: 'posts', builder: (context, state) => PostsScreen(), routes: [
+                GoRoute(
+                  path: 'details',
+                  name: 'details',
+                  builder: (context, state) {
+                    final Map<String, dynamic> data = state.extra! as Map<String, dynamic>;
 
-                        return PostDetailsScreen(
-                          post: data["post"] as Post,
-                          user: data["user"] as User,
-                          key: state.pageKey,
-                        );
-                      },
-                    ),
-                  ]),
+                    return PostDetailsScreen(
+                      post: data["post"] as Post,
+                      user: data["user"] as User,
+                      key: state.pageKey,
+                    );
+                  },
+                ),
+              ]),
             ],
           ),
           StatefulShellBranch(

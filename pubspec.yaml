@@ -7,27 +7,6 @@ version: 1.0.0+1
 environment:
   sdk: ^3.6.1
 
-flutter_native_splash:
-
-  image: assets/images/nextdata-logo-blanc.png
-
-
-  color_dark: "#1864D3"
-  image_dark: assets/images/nextdata-logo-blanc.png
-
-  android_12:
-
-  color: "#1864D3"
-
-  # App icon background color.
-  icon_background_color: "#1864D3"
-
-  android: true
-  ios: false
-  web: false
-
-
-
 dependencies:
   flutter:
     sdk: flutter
@@ -60,8 +39,19 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   build_runner: ^2.4.15
   json_serializable: ^6.9.5
+  flutter_launcher_icons: ^0.14.3
 
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/next-data-logo.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
 
+flutter_native_splash:
+  image: assets/images/next-data-logo.png
+  android: true
+  ios: true
 # The following section is specific to Flutter packages.
 flutter:
   uses-material-design: true
